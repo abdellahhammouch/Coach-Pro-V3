@@ -105,7 +105,99 @@ class UserController
         flash('success', 'Utilisateur ajouté avec succès ✅');
         redirect('/users');
     }
+    public function edit(): void
+    {
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            http_response_code(400);
+            echo "Bad Request";
+            return;
+        }
 
+        $user = $this->repo->findById($id);
+        if (!$user) {
+            http_response_code(404);
+            echo "User not found";
+            return;
+        }
+
+        $errors = flash('errors') ?? [];
+        $old = flash('old') ?? [];
+
+        require __DIR__ . '/../Views/editUser.php';
+    }
+
+    public function update(): void
+    {
+        csrf_verify();
+
+        $id = (int)($_POST['id_user'] ?? 0);
+        if ($id <= 0) {
+            http_response_code(400);
+            echo "Bad Request";
+            return;
+        }
+
+        $nom = trim((string)($_POST['nom_user'] ?? ''));
+        $prenom = trim((string)($_POST['prenom_user'] ?? ''));
+        $email = trim((string)($_POST['email_user'] ?? ''));
+        $role = trim((string)($_POST['role_user'] ?? ''));
+        $phone = trim((string)($_POST['phone_user'] ?? ''));
+
+        $errors = [];
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email_user'] = "Email invalide.";
+        }
+
+        if (!in_array($role, ['coach', 'sportif'], true)) {
+            $errors['role_user'] = "Rôle invalide.";
+        }
+
+        if ($phone !== '' && !preg_match('/^[0-9]{10}$/', $phone)) {
+            $errors['phone_user'] = "Téléphone invalide (10 chiffres).";
+        }
+
+        // email unique (sauf lui-même)
+        $existing = $this->repo->findByEmail($email);
+        if ($existing && (int)$existing['id_user'] !== $id) {
+            $errors['email_user'] = "Cet email existe déjà.";
+        }
+
+        if (!empty($errors)) {
+            flash('errors', $errors);
+            flash('old', $_POST);
+            redirect('/users/edit?id=' . $id);
+        }
+
+        $this->repo->updateUser($id, [
+            'nom_user' => $nom,
+            'prenom_user' => $prenom,
+            'email_user' => $email,
+            'role_user' => $role,
+            'phone_user' => $phone,
+        ]);
+
+        flash('success', 'Utilisateur modifié ✅');
+        redirect('/users');
+    }
+
+    public function delete(): void
+    {
+        csrf_verify();
+
+        $id = (int)($_POST['id_user'] ?? 0);
+        if ($id <= 0) {
+            http_response_code(400);
+            echo "Bad Request";
+            return;
+        }
+
+        $this->repo->deleteUser($id);
+
+        flash('success', 'Utilisateur supprimé ✅');
+        redirect('/users');
+    }
 }
 
 ?>

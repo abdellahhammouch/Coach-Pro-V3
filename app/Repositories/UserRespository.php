@@ -68,6 +68,42 @@ class UserRespository extends BaseRepository
         $stmt = $this->db->prepare("INSERT INTO sportifs (id_user) VALUES (:id)");
         $stmt->execute(['id' => $userId]);
     }
+    public function updateUser(int $id, array $data): bool
+    {
+        $sql = "
+            UPDATE users
+            SET nom_user = :nom,
+                prenom_user = :prenom,
+                email_user = :email,
+                role_user = :role,
+                phone_user = :phone
+            WHERE id_user = :id
+        ";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'id' => $id,
+            'nom' => $data['nom_user'] ?? null,
+            'prenom' => $data['prenom_user'] ?? null,
+            'email' => $data['email_user'],
+            'role' => $data['role_user'],
+            'phone' => $data['phone_user'] ?? null,
+        ]);
+    }
+
+    public function deleteUser(int $id): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM users WHERE id_user = :id");
+        return $stmt->execute(['id' => $id]);
+    }
+
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE id_user = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        $u = $stmt->fetch();
+        return $u ?: null;
+    }
 }
+
 
 ?>

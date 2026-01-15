@@ -23,6 +23,7 @@
           <th class="text-left p-4">Email</th>
           <th class="text-left p-4">Rôle</th>
           <th class="text-left p-4">Infos</th>
+          <th class="text-left p-4">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +44,20 @@
             <?php else: ?>
               Sportif
             <?php endif; ?>
+          </td>
+          <td class="p-4 flex gap-2">
+            <a href="/users/edit?id=<?= e($u['id_user']) ?>"
+              class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15">
+              Modifier
+            </a>
+
+            <form method="POST" action="/users/delete" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+              <?= csrf_field(); ?>
+              <input type="hidden" name="id_user" value="<?= e($u['id_user']) ?>">
+              <button class="px-3 py-2 rounded-xl bg-red-600/80 hover:bg-red-600">
+                Supprimer
+              </button>
+            </form>
           </td>
         </tr>
       <?php endforeach; ?>
