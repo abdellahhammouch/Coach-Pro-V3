@@ -6,86 +6,68 @@ class UserRespository extends BaseRepository
 {
     public function findAll(): array
     {
-        $stmt = $this->db->query("SELECT * FROM users ORDER BY id_user DESC");
-        return $stmt->fetchAll();
-    }
-
-    public function findById(int $id): ?array
-    {
-        $sql = "SELECT * FROM users WHERE id_user = :id LIMIT 1";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        $user = $stmt->fetch();
-        return $user ?: null;
+        $sql = "
+            SELECT u.*,
+                   c.discipline_coach,
+                   c.experiences_coach,
+                   s.id_user AS sportif_exists
+            FROM users u
+            LEFT JOIN coachs c ON c.id_user = u.id_user
+            LEFT JOIN sportifs s ON s.id_user = u.id_user
+            ORDER BY u.id_user DESC
+        ";
+        return $this->db->query($sql)->fetchAll();
     }
 
     public function findByEmail(string $email): ?array
     {
-        $sql = "SELECT * FROM users WHERE email_user = :email LIMIT 1";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE email_user = :email LIMIT 1");
         $stmt->execute(['email' => $email]);
-        $user = $stmt->fetch();
-        return $user ?: null;
+        $u = $stmt->fetch();
+        return $u ?: null;
     }
 
-    /**
-     * Crée un user et retourne son id_user (PostgreSQL => RETURNING)
-     */
-    public function create(array $data): int
+    /** PostgreSQL: RETURNING id_user */
+    public function createUser(array $data): int
     {
         $sql = "
             INSERT INTO users (nom_user, prenom_user, email_user, role_user, phone_user, password_user)
             VALUES (:nom, :prenom, :email, :role, :phone, :pass)
             RETURNING id_user
         ";
-
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            'nom'    => $data['nom_user'] ?? null,
+            'nom' => $data['nom_user'] ?? null,
             'prenom' => $data['prenom_user'] ?? null,
-            'email'  => $data['email_user'],
-            'role'   => $data['role_user'],     // 'coach' ou 'sportif'
-            'phone'  => $data['phone_user'] ?? null,
-            'pass'   => $data['password_user'], // hash
+            'email' => $data['email_user'],
+            'role' => $data['role_user'],
+            'phone' => $data['phone_user'] ?? null,
+            'pass' => $data['password_user'],
         ]);
 
-        return (int) $stmt->fetchColumn();
+        return (int)$stmt->fetchColumn();
     }
 
-    public function update(int $id, array $data): bool
+    public function createCoach(int $userId, array $coach): void
     {
         $sql = "
-            UPDATE users
-            SET nom_user = :nom,
-                prenom_user = :prenom,
-                email_user = :email,
-                role_user = :role,
-                phone_user = :phone
-            WHERE id_user = :id
+            INSERT INTO coachs (id_user, discipline_coach, experiences_coach, description_coach)
+            VALUES (:id, :discipline, :exp, :descr)
         ";
-
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            'id'     => $id,
-            'nom'    => $data['nom_user'] ?? null,
-            'prenom' => $data['prenom_user'] ?? null,
-            'email'  => $data['email_user'],
-            'role'   => $data['role_user'],
-            'phone'  => $data['phone_user'] ?? null,
+        $stmt->execute([
+            'id' => $userId,
+            'discipline' => $coach['discipline_coach'] ?? null,
+            'exp' => $coach['experiences_coach'] ?? null,
+            'descr' => $coach['description_coach'] ?? null,
         ]);
     }
 
-    public function updatePassword(int $id, string $hash): bool
+    public function createSportif(int $userId): void
     {
-        $sql = "UPDATE users SET password_user = :pass WHERE id_user = :id";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute(['id' => $id, 'pass' => $hash]);
-    }
-
-    public function delete(int $id): bool
-    {
-        $stmt = $this->db->prepare("DELETE FROM users WHERE id_user = :id");
-        return $stmt->execute(['id' => $id]);
+        $stmt = $this->db->prepare("INSERT INTO sportifs (id_user) VALUES (:id)");
+        $stmt->execute(['id' => $userId]);
     }
 }
+
 ?>
