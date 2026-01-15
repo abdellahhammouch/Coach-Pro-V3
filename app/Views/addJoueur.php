@@ -7,6 +7,7 @@
 
   <form class="space-y-5 bg-white/5 border border-white/10 rounded-2xl p-6"
         method="POST" action="/users/store" novalidate>
+    <?= csrf_field(); ?>
 
     <div class="grid md:grid-cols-2 gap-4">
       <div>
@@ -49,7 +50,11 @@
         <label class="block mb-1 text-slate-300">Téléphone</label>
         <input name="phone_user" value="<?= e($old['phone_user'] ?? '') ?>"
                class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
+        <?php if (!empty($errors['phone_user'])): ?>
+          <p class="text-red-400 text-sm mt-1"><?= e($errors['phone_user']) ?></p>
+        <?php endif; ?>
       </div>
+
     </div>
 
     <div>

@@ -5,6 +5,12 @@
 <main class="max-w-6xl mx-auto px-4 py-8">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">Utilisateurs</h1>
+    <?php if ($msg = flash('success')): ?>
+      <div class="mb-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-200">
+        <?= e($msg) ?>
+      </div>
+    <?php endif; ?>
+
     <a href="/users/create" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500">+ Ajouter</a>
   </div>
 

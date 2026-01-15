@@ -25,36 +25,53 @@ class UserController
 
     public function store(): void
     {
-        $nom = trim($_POST['nom_user'] ?? '');
-        $prenom = trim($_POST['prenom_user'] ?? '');
-        $email = trim($_POST['email_user'] ?? '');
-        $role = trim($_POST['role_user'] ?? '');
-        $phone = trim($_POST['phone_user'] ?? '');
+        csrf_verify();
+
+        $nom = trim((string)($_POST['nom_user'] ?? ''));
+        $prenom = trim((string)($_POST['prenom_user'] ?? ''));
+        $email = trim((string)($_POST['email_user'] ?? ''));
+        $role = trim((string)($_POST['role_user'] ?? ''));
+        $phone = trim((string)($_POST['phone_user'] ?? ''));
         $password = (string)($_POST['password_user'] ?? '');
 
-        $discipline = trim($_POST['discipline_coach'] ?? '');
-        $experience = trim($_POST['experiences_coach'] ?? '');
-        $description = trim($_POST['description_coach'] ?? '');
+        $discipline = trim((string)($_POST['discipline_coach'] ?? ''));
+        $experience = trim((string)($_POST['experiences_coach'] ?? ''));
+        $description = trim((string)($_POST['description_coach'] ?? ''));
 
         $errors = [];
 
+        // Email
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email_user'] = "Email invalide.";
         }
 
+        // Role
         if (!in_array($role, ['coach', 'sportif'], true)) {
             $errors['role_user'] = "Rôle invalide.";
         }
 
+        // Password
         if (strlen($password) < 6) {
             $errors['password_user'] = "Mot de passe trop court (min 6).";
         }
 
+        // Phone (optionnel mais propre)
+        if ($phone !== '' && !preg_match('/^[0-9]{10}$/', $phone)) {
+            $errors['phone_user'] = "Téléphone invalide (10 chiffres).";
+        }
+
+        // Coach required fields
         if ($role === 'coach' && $discipline === '') {
             $errors['discipline_coach'] = "Discipline obligatoire pour un coach.";
         }
 
-        if ($this->repo->findByEmail($email)) {
+        // Experience
+        if ($experience !== '' && (!ctype_digit($experience) || (int)$experience < 0)) {
+            $errors['experiences_coach'] = "Expérience invalide.";
+        }
+
+        // Unique email
+        if ($email !== '' && $this->repo->findByEmail($email)) {
             $errors['email_user'] = "Cet email existe déjà.";
         }
 
@@ -85,8 +102,10 @@ class UserController
             $this->repo->createSportif($userId);
         }
 
+        flash('success', 'Utilisateur ajouté avec succès ✅');
         redirect('/users');
     }
+
 }
 
 ?>
