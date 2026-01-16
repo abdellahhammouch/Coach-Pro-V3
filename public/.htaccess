@@ -1,5 +1,9 @@
 RewriteEngine On
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Si le fichier existe (image/css/js...) on le sert normalement
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Sinon on passe par le Front Controller
 RewriteRule ^ index.php [QSA,L]

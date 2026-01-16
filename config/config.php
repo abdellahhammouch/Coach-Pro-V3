@@ -4,8 +4,8 @@ return [
         'driver' => 'pgsql',
         'host'   => '127.0.0.1',
         'port'   => 5432,
-        'dbname' => 'coachprov3',
+        'dbname' => 'coach_pro',
         'user'   => 'coachpro',
-        'pass'   => 'coachpro123',
+        'pass'   => 'abha11228899',
     ],
 ];
