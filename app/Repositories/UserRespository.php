@@ -1,109 +1,91 @@
 <?php
 
-require_once __DIR__ . '/BaseRepository.php';
-
 class UserRespository extends BaseRepository
 {
     public function findAll(): array
     {
+        // On récupère user + infos coach si role coach
         $sql = "
-            SELECT u.*,
-                   c.discipline_coach,
-                   c.experiences_coach,
-                   s.id_user AS sportif_exists
+            SELECT 
+              u.id_user, u.nom_user, u.prenom_user, u.email_user, u.role_user, u.phone_user,
+              c.discipline_coach, c.experiences_coach, c.description_coach
             FROM users u
             LEFT JOIN coachs c ON c.id_user = u.id_user
-            LEFT JOIN sportifs s ON s.id_user = u.id_user
             ORDER BY u.id_user DESC
         ";
-        return $this->db->query($sql)->fetchAll();
+        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findByEmail(string $email): ?array
+    public function findById(int $id): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE email_user = :email LIMIT 1");
-        $stmt->execute(['email' => $email]);
-        $u = $stmt->fetch();
-        return $u ?: null;
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id_user = :id");
+        $stmt->execute(['id' => $id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user ?: null;
     }
 
-    /** PostgreSQL: RETURNING id_user */
     public function createUser(array $data): int
     {
-        $sql = "
+        $stmt = $this->pdo->prepare("
             INSERT INTO users (nom_user, prenom_user, email_user, role_user, phone_user, password_user)
-            VALUES (:nom, :prenom, :email, :role, :phone, :pass)
+            VALUES (:nom, :prenom, :email, :role, :phone, :password)
             RETURNING id_user
-        ";
-        $stmt = $this->db->prepare($sql);
+        ");
         $stmt->execute([
             'nom' => $data['nom_user'] ?? null,
             'prenom' => $data['prenom_user'] ?? null,
             'email' => $data['email_user'],
             'role' => $data['role_user'],
             'phone' => $data['phone_user'] ?? null,
-            'pass' => $data['password_user'],
+            'password' => password_hash($data['password_user'], PASSWORD_DEFAULT),
         ]);
 
         return (int)$stmt->fetchColumn();
     }
 
-    public function createCoach(int $userId, array $coach): void
+    public function createCoachInfos(int $userId, array $data): void
     {
-        $sql = "
+        $stmt = $this->pdo->prepare("
             INSERT INTO coachs (id_user, discipline_coach, experiences_coach, description_coach)
-            VALUES (:id, :discipline, :exp, :descr)
-        ";
-        $stmt = $this->db->prepare($sql);
+            VALUES (:id_user, :discipline, :exp, :description)
+        ");
         $stmt->execute([
-            'id' => $userId,
-            'discipline' => $coach['discipline_coach'] ?? null,
-            'exp' => $coach['experiences_coach'] ?? null,
-            'descr' => $coach['description_coach'] ?? null,
+            'id_user' => $userId,
+            'discipline' => $data['discipline_coach'] ?? null,
+            'exp' => $data['experiences_coach'] ?? null,
+            'description' => $data['description_coach'] ?? null,
         ]);
     }
 
-    public function createSportif(int $userId): void
+    public function updateUser(int $id, array $data): void
     {
-        $stmt = $this->db->prepare("INSERT INTO sportifs (id_user) VALUES (:id)");
-        $stmt->execute(['id' => $userId]);
-    }
-    public function updateUser(int $id, array $data): bool
-    {
-        $sql = "
-            UPDATE users
-            SET nom_user = :nom,
-                prenom_user = :prenom,
-                email_user = :email,
-                role_user = :role,
-                phone_user = :phone
+        $stmt = $this->pdo->prepare("
+            UPDATE users SET 
+              nom_user = :nom,
+              prenom_user = :prenom,
+              email_user = :email,
+              role_user = :role,
+              phone_user = :phone
             WHERE id_user = :id
-        ";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            'id' => $id,
+        ");
+        $stmt->execute([
             'nom' => $data['nom_user'] ?? null,
             'prenom' => $data['prenom_user'] ?? null,
             'email' => $data['email_user'],
             'role' => $data['role_user'],
             'phone' => $data['phone_user'] ?? null,
+            'id' => $id,
         ]);
     }
 
-    public function deleteUser(int $id): bool
+    public function deleteUser(int $id): void
     {
-        $stmt = $this->db->prepare("DELETE FROM users WHERE id_user = :id");
-        return $stmt->execute(['id' => $id]);
-    }
-
-    public function findById(int $id): ?array
-    {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE id_user = :id LIMIT 1");
+        // si coach a des infos dans coachs -> supprimer avant (FK)
+        $stmt = $this->pdo->prepare("DELETE FROM coachs WHERE id_user = :id");
         $stmt->execute(['id' => $id]);
-        $u = $stmt->fetch();
-        return $u ?: null;
+
+        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id_user = :id");
+        $stmt->execute(['id' => $id]);
     }
 }
-
-
-?>

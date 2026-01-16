@@ -2,11 +2,10 @@
 
 class BaseRepository
 {
-    protected PDO $db;
+    protected PDO $pdo;
 
-    public function __construct(PDO $db)
+    public function __construct(PDO $pdo)
     {
-        $this->db = $db;
+        $this->pdo = $pdo;
     }
 }
-?>
