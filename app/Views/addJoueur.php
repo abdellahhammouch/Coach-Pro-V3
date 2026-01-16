@@ -78,43 +78,53 @@
     </div>
 
     <?php $showCoach = (($old['role_user'] ?? '') === 'coach'); ?>
-    <div id="coachFields" style="display: <?= $showCoach ? 'block' : 'none' ?>;">
-      <div class="form-group">
-        <label>Discipline (coach) *</label>
-        <div class="input-group">
-          <i class="fas fa-dumbbell"></i>
-          <input name="discipline_coach" value="<?= e($old['discipline_coach'] ?? '') ?>" class="form-control" placeholder="Ex: Football">
-        </div>
-        <?php if (!empty($errors['discipline_coach'])): ?>
-          <span class="error-message show"><?= e($errors['discipline_coach']) ?></span>
-        <?php endif; ?>
-      </div>
+<div id="coachFields" style="display: <?= $showCoach ? 'block' : 'none' ?>;">
 
-      <div class="form-group">
-        <label>Expérience (années)</label>
-        <div class="input-group">
-          <i class="fas fa-medal"></i>
-          <input type="number" min="0" name="experiences_coach" value="<?= e($old['experiences_coach'] ?? '') ?>" class="form-control" placeholder="Ex: 5">
-        </div>
-        <?php if (!empty($errors['experiences_coach'])): ?>
-          <span class="error-message show"><?= e($errors['experiences_coach']) ?></span>
-        <?php endif; ?>
-      </div>
+  <div class="form-group">
+    <label><i class="fas fa-star"></i> Vos Spécialités</label>
 
-      <div class="form-group">
-        <label>Description</label>
-        <textarea name="description_coach" rows="4" class="form-control" style="padding: 12px; resize: vertical;"><?= e($old['description_coach'] ?? '') ?></textarea>
-      </div>
+    <div class="tag-input" id="tags"></div>
+
+    <input type="hidden" name="discipline_coach" id="hiddenInput"
+          value="<?= e($old['discipline_coach'] ?? '') ?>">
+
+    <p class="discipline-hint">
+      <i class="fas fa-info-circle"></i>
+      Cliquez sur les disciplines pour les sélectionner
+    </p>
+
+    <?php if (!empty($errors['discipline_coach'])): ?>
+      <span class="error-message show"><?= e($errors['discipline_coach']) ?></span>
+    <?php endif; ?>
+
+    <div class="choices">
+      <span class="choice" data-value="Football"><i class="fas fa-futbol"></i> Football</span>
+      <span class="choice" data-value="Tennis"><i class="fas fa-table-tennis"></i> Tennis</span>
+      <span class="choice" data-value="Natation"><i class="fas fa-swimmer"></i> Natation</span>
+      <span class="choice" data-value="Boxe"><i class="fas fa-fist-raised"></i> Boxe</span>
+      <span class="choice" data-value="Preparation physique"><i class="fas fa-dumbbell"></i> Préparation physique</span>
+      <span class="choice" data-value="Basketball"><i class="fas fa-basketball-ball"></i> Basketball</span>
+      <span class="choice" data-value="Yoga"><i class="fas fa-spa"></i> Yoga</span>
     </div>
+  </div>
 
-    <button type="submit" class="btn-submit">
-      <i class="fas fa-save"></i> Enregistrer
-    </button>
-
-    <div class="form-footer">
-      <p><a href="/users">Retour à la liste</a></p>
+  <div class="form-group">
+    <label><i class="fas fa-calendar-alt"></i> Années d'expérience</label>
+    <div class="input-group">
+      <i class="fas fa-medal"></i>
+      <input type="number" min="0" name="experiences_coach"
+             value="<?= e($old['experiences_coach'] ?? '') ?>"
+             class="form-control" placeholder="Ex: 5">
     </div>
-  </form>
+  </div>
+
+  <div class="form-group">
+    <label><i class="fas fa-pen"></i> Description</label>
+    <textarea name="description_coach" rows="4" class="form-control"
+              style="padding: 12px; resize: vertical;"><?= e($old['description_coach'] ?? '') ?></textarea>
+  </div>
+
 </div>
+
 
 <?php require __DIR__ . '/partials/footer.php'; ?>
