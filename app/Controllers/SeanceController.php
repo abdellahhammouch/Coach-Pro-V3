@@ -69,4 +69,5 @@ class SeanceController
 
         redirect('/dashboard/coach');
     }
+
 }
