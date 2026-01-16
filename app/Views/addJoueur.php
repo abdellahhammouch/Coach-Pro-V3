@@ -2,113 +2,119 @@
 <?php require __DIR__ . '/partials/header.php'; ?>
 <?php require __DIR__ . '/partials/nav.php'; ?>
 
-<main class="max-w-3xl mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-6">Ajouter un utilisateur</h1>
+<div class="form-container" style="max-width: 650px;">
+  <div class="form-header">
+    <h2>Ajouter un utilisateur</h2>
+    <p>Créer un compte coach ou sportif</p>
+  </div>
 
-  <form class="space-y-5 bg-white/5 border border-white/10 rounded-2xl p-6"
-        method="POST" action="/users/store" novalidate>
+  <form method="POST" action="/users/store" novalidate>
     <?= csrf_field(); ?>
 
-    <div class="grid md:grid-cols-2 gap-4">
-      <div>
-        <label class="block mb-1 text-slate-300">Nom</label>
-        <input name="nom_user" value="<?= e($old['nom_user'] ?? '') ?>"
-               class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
-      </div>
-
-      <div>
-        <label class="block mb-1 text-slate-300">Prénom</label>
-        <input name="prenom_user" value="<?= e($old['prenom_user'] ?? '') ?>"
-               class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
-      </div>
-    </div>
-
-    <div>
-      <label class="block mb-1 text-slate-300">Email *</label>
-      <input type="email" required name="email_user" value="<?= e($old['email_user'] ?? '') ?>"
-             class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
-      <?php if (!empty($errors['email_user'])): ?>
-        <p class="text-red-400 text-sm mt-1"><?= e($errors['email_user']) ?></p>
-      <?php endif; ?>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-4">
-      <div>
-        <label class="block mb-1 text-slate-300">Rôle *</label>
-        <select required name="role_user" id="role_user"
-                class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none">
-          <option value="">-- choisir --</option>
+    <div class="form-group">
+      <label for="userType">Rôle *</label>
+      <div class="input-group">
+        <i class="fas fa-user-tag"></i>
+        <select name="role_user" id="userType" class="form-control" required>
+          <option value="">Sélectionnez</option>
           <option value="sportif" <?= (($old['role_user'] ?? '') === 'sportif') ? 'selected' : '' ?>>Sportif</option>
           <option value="coach" <?= (($old['role_user'] ?? '') === 'coach') ? 'selected' : '' ?>>Coach</option>
         </select>
-        <?php if (!empty($errors['role_user'])): ?>
-          <p class="text-red-400 text-sm mt-1"><?= e($errors['role_user']) ?></p>
-        <?php endif; ?>
       </div>
-
-      <div>
-        <label class="block mb-1 text-slate-300">Téléphone</label>
-        <input name="phone_user" value="<?= e($old['phone_user'] ?? '') ?>"
-               class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
-        <?php if (!empty($errors['phone_user'])): ?>
-          <p class="text-red-400 text-sm mt-1"><?= e($errors['phone_user']) ?></p>
-        <?php endif; ?>
-      </div>
-    </div>
-
-    <div>
-      <label class="block mb-1 text-slate-300">Mot de passe * (min 6)</label>
-      <input type="password" required minlength="6" name="password_user"
-             class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
-      <?php if (!empty($errors['password_user'])): ?>
-        <p class="text-red-400 text-sm mt-1"><?= e($errors['password_user']) ?></p>
+      <?php if (!empty($errors['role_user'])): ?>
+        <span class="error-message show"><?= e($errors['role_user']) ?></span>
       <?php endif; ?>
     </div>
 
-    <div id="coach_box" class="hidden space-y-4 border-t border-white/10 pt-5">
-      <h2 class="font-semibold">Infos Coach</h2>
-
-      <div>
-        <label class="block mb-1 text-slate-300">Discipline *</label>
-        <input name="discipline_coach" value="<?= e($old['discipline_coach'] ?? '') ?>"
-               class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
-        <?php if (!empty($errors['discipline_coach'])): ?>
-          <p class="text-red-400 text-sm mt-1"><?= e($errors['discipline_coach']) ?></p>
-        <?php endif; ?>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <label class="block mb-1 text-slate-300">Expérience (années)</label>
-          <input type="number" min="0" name="experiences_coach" value="<?= e($old['experiences_coach'] ?? '') ?>"
-                 class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none" />
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div class="form-group">
+        <label>Prénom</label>
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input name="prenom_user" value="<?= e($old['prenom_user'] ?? '') ?>" class="form-control" placeholder="Prénom">
         </div>
       </div>
 
-      <div>
-        <label class="block mb-1 text-slate-300">Description</label>
-        <textarea name="description_coach" rows="4"
-                  class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 focus:outline-none"><?= e($old['description_coach'] ?? '') ?></textarea>
+      <div class="form-group">
+        <label>Nom</label>
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input name="nom_user" value="<?= e($old['nom_user'] ?? '') ?>" class="form-control" placeholder="Nom">
+        </div>
       </div>
     </div>
 
-    <div class="flex gap-3">
-      <button class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500">
-        Enregistrer
-      </button>
-      <a href="/users" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15">
-        Annuler
-      </a>
+    <div class="form-group">
+      <label>Email *</label>
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" name="email_user" value="<?= e($old['email_user'] ?? '') ?>" class="form-control" required placeholder="email@exemple.com">
+      </div>
+      <?php if (!empty($errors['email_user'])): ?>
+        <span class="error-message show"><?= e($errors['email_user']) ?></span>
+      <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+      <label>Téléphone</label>
+      <div class="input-group">
+        <i class="fas fa-phone"></i>
+        <input name="phone_user" value="<?= e($old['phone_user'] ?? '') ?>" class="form-control" placeholder="06XXXXXXXX">
+      </div>
+      <?php if (!empty($errors['phone_user'])): ?>
+        <span class="error-message show"><?= e($errors['phone_user']) ?></span>
+      <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+      <label>Mot de passe *</label>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="password_user" class="form-control" required placeholder="Min 6 caractères">
+      </div>
+      <?php if (!empty($errors['password_user'])): ?>
+        <span class="error-message show"><?= e($errors['password_user']) ?></span>
+      <?php endif; ?>
+    </div>
+
+    <?php $showCoach = (($old['role_user'] ?? '') === 'coach'); ?>
+    <div id="coachFields" style="display: <?= $showCoach ? 'block' : 'none' ?>;">
+      <div class="form-group">
+        <label>Discipline (coach) *</label>
+        <div class="input-group">
+          <i class="fas fa-dumbbell"></i>
+          <input name="discipline_coach" value="<?= e($old['discipline_coach'] ?? '') ?>" class="form-control" placeholder="Ex: Football">
+        </div>
+        <?php if (!empty($errors['discipline_coach'])): ?>
+          <span class="error-message show"><?= e($errors['discipline_coach']) ?></span>
+        <?php endif; ?>
+      </div>
+
+      <div class="form-group">
+        <label>Expérience (années)</label>
+        <div class="input-group">
+          <i class="fas fa-medal"></i>
+          <input type="number" min="0" name="experiences_coach" value="<?= e($old['experiences_coach'] ?? '') ?>" class="form-control" placeholder="Ex: 5">
+        </div>
+        <?php if (!empty($errors['experiences_coach'])): ?>
+          <span class="error-message show"><?= e($errors['experiences_coach']) ?></span>
+        <?php endif; ?>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description_coach" rows="4" class="form-control" style="padding: 12px; resize: vertical;"><?= e($old['description_coach'] ?? '') ?></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">
+      <i class="fas fa-save"></i> Enregistrer
+    </button>
+
+    <div class="form-footer">
+      <p><a href="/users">Retour à la liste</a></p>
     </div>
   </form>
-</main>
-
-<script>
-  const role = document.getElementById('role_user');
-  const coachBox = document.getElementById('coach_box');
-  function toggleCoach(){ coachBox.classList.toggle('hidden', role.value !== 'coach'); }
-  role.addEventListener('change', toggleCoach);
-  toggleCoach();
-</script>
+</div>
 
 <?php require __DIR__ . '/partials/footer.php'; ?>

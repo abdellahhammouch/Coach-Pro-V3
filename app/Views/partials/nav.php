@@ -1,10 +1,18 @@
-<nav class="border-b border-white/10 bg-white/5">
-  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-    <a href="/users" class="font-bold tracking-wide">CoachProV3</a>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/" class="logo">
+      <i class="fas fa-dumbbell"></i>
+      <span>SportCoach</span>
+    </a>
 
-    <div class="flex items-center gap-3">
-      <a href="/users" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15">Utilisateurs</a>
-      <a href="/users/create" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500">+ Ajouter</a>
-    </div>
+    <ul class="nav-menu" id="navMenu">
+      <li><a href="/" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
+      <li><a href="/users" class="nav-link"><i class="fas fa-users"></i> Utilisateurs</a></li>
+      <li><a href="/users/create" class="btn-primary"><i class="fas fa-user-plus"></i> Ajouter</a></li>
+    </ul>
+
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button">
+      <i class="fas fa-bars"></i>
+    </button>
   </div>
 </nav>

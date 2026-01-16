@@ -1,15 +1,12 @@
-<?php
-// $title peut être défini dans la vue
-?>
-<!doctype html>
+<?php $title = $title ?? 'SportCoach'; ?>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title><?= e($title ?? 'Coach Pro') ?></title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><?= e($title) ?></title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/styles/style.css">
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100">
+<body>
