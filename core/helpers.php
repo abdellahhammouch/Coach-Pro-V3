@@ -48,3 +48,15 @@ function csrf_verify(): void
         exit;
     }
 }
+
+function is_logged_in(): bool
+{
+    return !empty($_SESSION['user_id']);
+}
+
+function require_login(): void
+{
+    if (!is_logged_in()) {
+        redirect('/login');
+    }
+}
