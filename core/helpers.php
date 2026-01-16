@@ -60,3 +60,13 @@ function require_login(): void
         redirect('/login');
     }
 }
+
+function require_role(string $role): void
+{
+    require_login();
+    if (($_SESSION['role'] ?? '') !== $role) {
+        http_response_code(403);
+        echo "Accès refusé";
+        exit;
+    }
+}

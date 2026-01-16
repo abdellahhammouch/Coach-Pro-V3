@@ -1,0 +1,393 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Coach - SportCoach</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+
+<body>
+
+<nav class="navbar" id="navbar">
+    <div class="nav-container">
+        <a href="#" class="logo" onclick="showSection('overview'); return false;">
+            <i class="fas fa-dumbbell"></i>
+            <span>SportCoach</span>
+        </a>
+
+        <ul class="nav-menu">
+            <li style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-user-tie" style="font-size: 22px; color: var(--primary-dark);"></i>
+                <span style="color: var(--primary-dark); font-weight: 600;">
+                    <?= $coach_prenom . " " . $coach_nom ?>
+                </span>
+            </li>
+            <li>
+                <a href="/logout.php" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link active" onclick="showSection('overview'); return false;">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Vue d'ensemble</span>
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showSection('reservations'); return false;">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Réservations</span>
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showSection('seances'); return false;">
+                    <i class="fas fa-clock"></i>
+                    <span>Mes Séances</span>
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showSection('profile'); return false;">
+                    <i class="fas fa-user-edit"></i>
+                    <span>Mon Profil</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div id="overviewSection" class="dashboard-section">
+            <div class="dashboard-header">
+                <h1>Tableau de bord</h1>
+                <p style="color: var(--text-gray);">Bienvenue dans votre espace coach</p>
+            </div>
+
+            <?php if (!empty($errors)): ?>
+                <div style="background:#fee2e2; border:2px solid #dc2626; color:#dc2626; padding:15px; border-radius:8px; margin-bottom:20px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <ul style="margin: 10px 0 0 18px;">
+                        <?php foreach($errors as $e): ?>
+                            <li><?= $e ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div style="background:#d1fae5; border:2px solid #10b981; color:#065f46; padding:15px; border-radius:8px; margin-bottom:20px; text-align:center; font-weight:600;">
+                    <i class="fas fa-check-circle"></i> <?= $success ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon pending"><i class="fas fa-list"></i></div>
+                    <div class="stat-details">
+                        <h3><?= $total_seances ?></h3>
+                        <p>Total séances</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon confirmed"><i class="fas fa-check"></i></div>
+                    <div class="stat-details">
+                        <h3><?= $dispo_seances ?></h3>
+                        <p>Séances disponibles</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon today"><i class="fas fa-lock"></i></div>
+                    <div class="stat-details">
+                        <h3><?= $reservee_seances ?></h3>
+                        <p>Séances réservées</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon tomorrow"><i class="fas fa-users"></i></div>
+                    <div class="stat-details">
+                        <h3><?= $athletes_count ?></h3>
+                        <p>Sportifs totaux</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Réservations récentes</h2>
+                    <button class="btn-secondary" onclick="showSection('reservations')">Voir tout</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sportif</th>
+                            <th>Date</th>
+                            <th>Heure</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($recentReservations) === 0): ?>
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:40px; color: var(--text-gray);">
+                                    Aucune réservation pour le moment
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($recentReservations as $r): ?>
+                                <tr>
+                                    <td><strong><?= $r['sportif_prenom'] . " " . $r['sportif_nom'] ?></strong></td>
+                                    <td><?= $r['date_seance'] ?></td>
+                                    <td><?= substr($r['heure_seance'], 0, 5) ?></td>
+                                    <td><?= $r['duree_senace'] ?> min</td>
+                                    <td>
+                                        <?php if (($r['statut_reservation'] ?? '') === 'annulee'): ?>
+                                            <span class="status-badge cancelled">Annulée</span>
+                                        <?php else: ?>
+                                            <span class="status-badge confirmed">Active</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="reservationsSection" class="dashboard-section" style="display:none;">
+            <div class="dashboard-header">
+                <h1>Réservations</h1>
+                <p style="color: var(--text-gray);">Liste des séances réservées par les sportifs</p>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Toutes les réservations</h2>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Sportif</th>
+                            <th>Date</th>
+                            <th>Heure</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($allReservations) === 0): ?>
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:40px; color: var(--text-gray);">
+                                    Aucune réservation
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($allReservations as $r): ?>
+                                <tr>
+                                    <td>#<?= $r['id_reservation'] ?></td>
+                                    <td><strong><?= $r['sportif_prenom'] . " " . $r['sportif_nom'] ?></strong></td>
+                                    <td><?= $r['date_seance'] ?></td>
+                                    <td><?= substr($r['heure_seance'], 0, 5) ?></td>
+                                    <td><?= $r['duree_senace'] ?> min</td>
+                                    <td><?= $r['statut_reservation'] ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="seancesSection" class="dashboard-section" style="display:none;">
+            <div class="dashboard-header">
+                <h1>Mes Séances</h1>
+                <p style="color: var(--text-gray);">Ajoutez et supprimez vos disponibilités</p>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Mes séances</h2>
+                    <button class="btn-primary" onclick="openModal('addSeanceModal')">
+                        <i class="fas fa-plus"></i> Ajouter une séance
+                    </button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Heure</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($mySeances) === 0): ?>
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:40px; color: var(--text-gray);">
+                                    Aucune séance
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach($mySeances as $s): ?>
+                                <tr>
+                                    <td><strong><?= $s["date_seance"] ?></strong></td>
+                                    <td><?= substr($s["heure_seance"], 0, 5) ?></td>
+                                    <td><?= $s["duree_senace"] ?> min</td>
+                                    <td>
+                                        <?php if ($s["statut_seance"] === "disponible"): ?>
+                                            <span class="status-badge confirmed">Disponible</span>
+                                        <?php else: ?>
+                                            <span class="status-badge pending">Réservée</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="action-buttons">
+                                        <form method="POST" action="/seances/delete" onsubmit="return confirm('Supprimer cette séance ?');" style="display:inline;">
+                                            <?= csrf_field(); ?>
+                                            <input type="hidden" name="seance_id" value="<?= $s["id_seance"] ?>">
+                                            <button type="submit" class="btn-reject">Supprimer</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="profileSection" class="dashboard-section" style="display:none;">
+            <div class="dashboard-header">
+                <h1>Mon Profil</h1>
+                <p style="color: var(--text-gray);">Mes informations personnelles</p>
+            </div>
+
+            <div class="table-container" style="max-width:700px; margin:0 auto;">
+                <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
+                    <i class="fas fa-user-tie" style="font-size:80px; color: var(--primary-gold);"></i>
+                    <div>
+                        <h2 style="margin:0; color: var(--primary-dark);">
+                            <?= $coach_nom . ' ' . $coach_prenom ?>
+                        </h2>
+                        <p style="margin:5px 0 0; color: var(--text-gray);">
+                            Compte Coach
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div style="background: var(--primary-light); padding:15px; border-radius:10px;">
+                        <strong>Nom</strong>
+                        <p style="margin:8px 0 0; color: var(--text-gray);"><?= $coach_nom ?></p>
+                    </div>
+
+                    <div style="background: var(--primary-light); padding:15px; border-radius:10px;">
+                        <strong>Prénom</strong>
+                        <p style="margin:8px 0 0; color: var(--text-gray);"><?= $coach_prenom ?></p>
+                    </div>
+
+                    <div style="background: var(--primary-light); padding:15px; border-radius:10px;">
+                        <strong>Email</strong>
+                        <p style="margin:8px 0 0; color: var(--text-gray);"><?= $coach_email ?></p>
+                    </div>
+
+                    <div style="background: var(--primary-light); padding:15px; border-radius:10px;">
+                        <strong>Discipline</strong>
+                        <p style="margin:8px 0 0; color: var(--text-gray);"><?= $coach_discipline ?></p>
+                    </div>
+
+                    <div style="background: var(--primary-light); padding:15px; border-radius:10px;">
+                        <strong>Expérience</strong>
+                        <p style="margin:8px 0 0; color: var(--text-gray);"><?= $coach_experience ?> ans</p>
+                    </div>
+
+                    <div style="background: var(--primary-light); padding:15px; border-radius:10px; grid-column: 1 / -1;">
+                        <strong>Description</strong>
+                        <p style="margin:8px 0 0; color: var(--text-gray); line-height:1.7;">
+                            <?= $coach_desc ?>
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top:20px; text-align:center;">
+                    <button class="btn-primary" onclick="showSection('seances')">
+                        <i class="fas fa-clock"></i> Gérer mes disponibilités
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div class="modal" id="addSeanceModal" style="display:none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3>Ajouter une séance</h3>
+            <button class="close-modal" onclick="closeModal('addSeanceModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="/seances/store">
+            <?= csrf_field(); ?>
+            <input type="hidden" name="add_seance" value="1">
+
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="date" class="form-control" min="<?= date('Y-m-d') ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Heure</label>
+                <input type="time" name="heure" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label>Durée (minutes)</label>
+                <input type="number" name="duree" class="form-control" min="1" placeholder="Ex: 60" required>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-plus"></i> Ajouter
+            </button>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-bottom" style="padding:20px;">
+        <p>&copy; 2024 SportCoach. Tous droits réservés.</p>
+    </div>
+</footer>
+
+<script src="/script/script.js"></script>
+</body>
+</html>
