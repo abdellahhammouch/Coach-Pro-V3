@@ -3,5 +3,8 @@
     CoachProV3 — MVC (PHP + PostgreSQL)
   </div>
 </footer>
+
+<script src="/assets/js/script.js"></script>
+
 </body>
 </html>
