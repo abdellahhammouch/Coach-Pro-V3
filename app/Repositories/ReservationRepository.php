@@ -60,4 +60,82 @@ class ReservationRepository extends BaseRepository
         $st = $this->db->prepare("UPDATE reservations SET statut_reservation = 'annulee' WHERE id_reservation = :id");
         return $st->execute(['id' => $reservationId]);
     }
+
+    public function countBySportifAndStatus(int $sportifId, string $status): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM reservations WHERE sportif_id = ? AND statut_reservation = ?");
+        $stmt->execute([$sportifId, $status]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public function recentBySportif(int $sportifId, int $limit): array
+    {
+        $sql = "
+            SELECT r.*, s.date_seance, s.heure_seance, s.duree_seance,
+                u.nom_user AS coach_nom, u.prenom_user AS coach_prenom
+            FROM reservations r
+            JOIN seances s ON s.id_seance = r.seance_id
+            JOIN coachs c ON c.id_coach = s.coach_id
+            JOIN users u ON u.id_user = c.id_user
+            WHERE r.sportif_id = ?
+            ORDER BY r.created_at DESC
+            LIMIT $limit
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$sportifId]);
+        return $stmt->fetchAll();
+    }
+
+    public function allBySportif(int $sportifId): array
+    {
+        $sql = "
+            SELECT r.*, s.date_seance, s.heure_seance, s.duree_seance,
+                u.nom_user AS coach_nom, u.prenom_user AS coach_prenom
+            FROM reservations r
+            JOIN seances s ON s.id_seance = r.seance_id
+            JOIN coachs c ON c.id_coach = s.coach_id
+            JOIN users u ON u.id_user = c.id_user
+            WHERE r.sportif_id = ?
+            ORDER BY r.created_at DESC
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$sportifId]);
+        return $stmt->fetchAll();
+    }
+
+    public function recentByCoach(int $coachId, int $limit): array
+    {
+        $sql = "
+            SELECT r.*, s.date_seance, s.heure_seance, s.duree_seance,
+                u.nom_user AS sportif_nom, u.prenom_user AS sportif_prenom
+            FROM reservations r
+            JOIN seances s ON s.id_seance = r.seance_id
+            JOIN sportifs sp ON sp.id_sportif = r.sportif_id
+            JOIN users u ON u.id_user = sp.id_user
+            WHERE s.coach_id = ?
+            ORDER BY r.created_at DESC
+            LIMIT $limit
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$coachId]);
+        return $stmt->fetchAll();
+    }
+
+    public function allByCoach(int $coachId): array
+    {
+        $sql = "
+            SELECT r.*, s.date_seance, s.heure_seance, s.duree_seance,
+                u.nom_user AS sportif_nom, u.prenom_user AS sportif_prenom
+            FROM reservations r
+            JOIN seances s ON s.id_seance = r.seance_id
+            JOIN sportifs sp ON sp.id_sportif = r.sportif_id
+            JOIN users u ON u.id_user = sp.id_user
+            WHERE s.coach_id = ?
+            ORDER BY r.created_at DESC
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$coachId]);
+        return $stmt->fetchAll();
+    }
+
 }
